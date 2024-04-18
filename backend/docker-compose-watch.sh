@@ -23,7 +23,7 @@ rebuild_and_restart() {
     debug "Calling rebuild_and_restart function for service: $service_name"
     debug "Changes detected in $service_name directory. Rebuilding and restarting $service_name service..."
     status "Building and restarting $service_name service..."
-    docker-compose build $service_name && docker-compose restart $service_name
+    docker-compose build "$service_name" && docker-compose restart "$service_name"
 }
 
 # Function to debounce filesystem events
@@ -40,6 +40,15 @@ debounce() {
     done
     echo "" # Print a new line after the debounce delay
 }
+
+# Function to kill child processes
+cleanup() {
+    debug "Cleaning up..."
+    kill -- -$$ # Kill the process group
+}
+
+# Trap Ctrl+C and call cleanup function
+trap cleanup SIGINT
 
 # Parse command-line arguments to check for verbosity flag
 while getopts "v" opt; do
@@ -70,16 +79,16 @@ for service in $services; do
 
     # Watch for changes in the directory itself (for file additions)
     debug "Watching directory ./$service for changes..."
-    fswatch -0 ./$service | while read -d "" -r changed_file; do
+    ( fswatch -0 ./$service | while read -d "" -r changed_file; do
         debug "Changes detected in $service directory."
         cancelled=""
         debounce
-        rebuild_and_restart $service
-    done &
+        rebuild_and_restart "$service"
+    done ) &
 
     # Watch for changes in existing files
     debug "Watching files in ./$service directory for changes..."
-    find ./$service -type f | entr -r rebuild_and_restart $service &
+    ( find ./$service -type f | entr -r rebuild_and_restart "$service" ) &
 done
 
 # Wait for background processes to finish
