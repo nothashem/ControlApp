@@ -1,0 +1,8 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "just our wrapper so we can have easy pnpm commands :D",
+  "scripts": {
+    "dev": "docker compose up -d --build && ./docker-compose-watch.sh"
+  }
+}
