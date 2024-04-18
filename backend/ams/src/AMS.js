@@ -1,9 +1,5 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const cors = require("cors");
-const axios = require("axios");
-const fs = require("fs");
-const helmet = require("helmet");
 const app = express();
 const bcrypt = require("bcryptjs");
 const uuidv4 = require("uuid").v4;
@@ -30,12 +26,10 @@ async function main() {
 
         // Validate user details (basic example)
         if (!FirstName || !LastName || !DOB || !email || !password) {
-          return res
-            .status(400)
-            .send({
-              message:
-                "FirstName, LastName, DOB, email and password are required",
-            });
+          return res.status(400).send({
+            message:
+              "FirstName, LastName, DOB, email and password are required",
+          });
         }
 
         if (DOB.length !== 10) {
@@ -91,12 +85,10 @@ async function main() {
 
         /// We need to post to the Ledger Service to create an ledger account for the user
 
-        res
-          .status(201)
-          .send({
-            message: "User created successfully",
-            userId: user.insertedId,
-          });
+        res.status(201).send({
+          message: "User created successfully",
+          userId: user.insertedId,
+        });
       } catch (error) {
         console.error(error);
         res.status(500).send({ message: "Error creating user" });

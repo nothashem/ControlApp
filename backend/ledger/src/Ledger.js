@@ -1,11 +1,6 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const cors = require("cors");
-const axios = require("axios");
-const fs = require("fs");
-const helmet = require("helmet");
 const app = express();
-const bcrypt = require("bcryptjs");
 const uuidv4 = require("uuid").v4;
 let client;
 
@@ -31,12 +26,9 @@ async function main() {
 
         // Validate user details
         if (!FirstName || !LastName || !DOB || !email || !userid) {
-          return res
-            .status(400)
-            .send({
-              message:
-                "FirstName, LastName, DOB, email and userid are required",
-            });
+          return res.status(400).send({
+            message: "FirstName, LastName, DOB, email and userid are required",
+          });
         }
 
         if (DOB.length !== 10) {
@@ -116,25 +108,19 @@ async function main() {
         }
         // Validate user details
         if (!userid || !amount || credit == null || debit == null) {
-          return res
-            .status(400)
-            .send({
-              message: "userid, amount, credit, and debit are required",
-            });
+          return res.status(400).send({
+            message: "userid, amount, credit, and debit are required",
+          });
         }
         if (credit && debit) {
-          return res
-            .status(400)
-            .send({
-              message: "credit and debit cannot be true at the same time",
-            });
+          return res.status(400).send({
+            message: "credit and debit cannot be true at the same time",
+          });
         }
         if (!credit && !debit) {
-          return res
-            .status(400)
-            .send({
-              message: "credit and debit cannot be false at the same time",
-            });
+          return res.status(400).send({
+            message: "credit and debit cannot be false at the same time",
+          });
         }
 
         const user = await client
@@ -179,12 +165,10 @@ async function main() {
 
         //Posting Back to The Card Controller
 
-        return res
-          .status(201)
-          .send({
-            message: "Transaction logged successfully",
-            Ledgerid: Ledgerid,
-          });
+        return res.status(201).send({
+          message: "Transaction logged successfully",
+          Ledgerid: Ledgerid,
+        });
       } catch (error) {
         console.error(error);
         res.status(500).send({ message: "Error logging transaction" });
