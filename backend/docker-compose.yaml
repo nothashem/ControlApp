@@ -19,18 +19,18 @@ services:
     depends_on:
       - our-mongo
     environment:
-      - MONGODB_URI=mongodb://our-mongo:27017/ams
+      - MONGO_URI=mongodb://our-mongo:27017/ams
       - PORT=5001
 
-  ledger:
-    image: control/ledger
-    build:
-      context: ./ledger
-      dockerfile: Dockerfile
-    ports:
-      - "5002:5002"
-    depends_on:
-      - our-mongo
-    environment:
-      - MONGODB_URI=mongodb://our-mongo:27017/ledger
-      - PORT=5002
+  # ledger:
+  #   image: control/ledger
+  #   build:
+  #     context: ./ledger
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5002:5002"
+  #   depends_on:
+  #     - our-mongo
+  #   environment:
+  #     - MONGO_URI=mongodb://our-mongo:27017/ledger
+  #     - PORT=5002
