@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  our-mongo:
+    image: mongo:6.0.15
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./0data:/data/db
+
+  ams:
+    image: control/ams
+    build:
+      context: ./ams
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    depends_on:
+      - our-mongo
+    environment:
+      - MONGO_URI=mongodb://our-mongo:27017/ams
+      - PORT=5001
+
+  ledger:
+    image: control/ledger
+    build:
+      context: ./ledger
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    depends_on:
+      - our-mongo
+    environment:
+      - MONGO_URI=mongodb://our-mongo:27017/ledger
+      - PORT=5002
