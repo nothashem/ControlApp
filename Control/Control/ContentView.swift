@@ -15,6 +15,8 @@ struct Card: Identifiable {
 }
 
 struct ContentView: View {
+    @State private var currentPage: Int = 0
+    
     let cards: [Card] = [
         Card(
             balance: Int64(3140),
@@ -45,18 +47,23 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(cards) { card in
-                        CardComponent(
-                            balance: card.balance,
-                            currency: card.currency,
-                            last4Digits: card.last4Digits
-                        )
-                        .padding()
-                    }
+            TabView(selection: $currentPage) {
+                ForEach(cards.indices, id: \.self) { index in
+                    let card = cards[index]
+                    CardComponent(
+                        balance: card.balance,
+                        currency: card.currency,
+                        last4Digits: card.last4Digits
+                    )
+                    .tag(index)
                 }
             }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+            .frame(height: 300)
+            
+            Spacer()
+            Text("Selected Card Details: \(cards[currentPage].last4Digits)")
             Spacer()
         }
     }
