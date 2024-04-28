@@ -46,7 +46,13 @@ struct ContentView: View {
     ]
     
     var body: some View {
-        VStack {
+        ScrollView {
+            HStack {
+                Image(.controlLogo)
+                    .resizable().aspectRatio(contentMode: .fit)
+                    .frame(width: 50)
+                Text("CONTROL")
+            }
             TabView(selection: $currentPage) {
                 ForEach(cards.indices, id: \.self) { index in
                     let card = cards[index]
@@ -60,12 +66,11 @@ struct ContentView: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
             .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-            .frame(height: 300)
-            
-            Spacer()
-            Text("Selected Card Details: \(cards[currentPage].last4Digits)")
+            .frame(height: 290)
+            CardBody(tintColor: .orange)
             Spacer()
         }
+        .safeAreaPadding(.all)
     }
 }
 
