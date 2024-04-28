@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05BB484D2BDE72AD00E319E2 /* CardComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BB484C2BDE72AD00E319E2 /* CardComponent.swift */; };
 		05C8B0162BD1813D001B8983 /* ControlApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C8B0152BD1813D001B8983 /* ControlApp.swift */; };
 		05C8B0182BD1813D001B8983 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C8B0172BD1813D001B8983 /* ContentView.swift */; };
 		05C8B01A2BD1813F001B8983 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05C8B0192BD1813F001B8983 /* Assets.xcassets */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		05BB484C2BDE72AD00E319E2 /* CardComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardComponent.swift; sourceTree = "<group>"; };
 		05C8B0122BD1813D001B8983 /* Control.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Control.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05C8B0152BD1813D001B8983 /* ControlApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlApp.swift; sourceTree = "<group>"; };
 		05C8B0172BD1813D001B8983 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -32,6 +34,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		05BB484B2BDE729000E319E2 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				05BB484C2BDE72AD00E319E2 /* CardComponent.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		05C8B0092BD1813D001B8983 = {
 			isa = PBXGroup;
 			children = (
@@ -51,6 +61,7 @@
 		05C8B0142BD1813D001B8983 /* Control */ = {
 			isa = PBXGroup;
 			children = (
+				05BB484B2BDE729000E319E2 /* Components */,
 				05C8B0152BD1813D001B8983 /* ControlApp.swift */,
 				05C8B0172BD1813D001B8983 /* ContentView.swift */,
 				05C8B0192BD1813F001B8983 /* Assets.xcassets */,
@@ -137,6 +148,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05BB484D2BDE72AD00E319E2 /* CardComponent.swift in Sources */,
 				05C8B0182BD1813D001B8983 /* ContentView.swift in Sources */,
 				05C8B0162BD1813D001B8983 /* ControlApp.swift in Sources */,
 			);
