@@ -149,6 +149,97 @@ module.exports = function (app, client) {
       res.status(500).send({ message: "Error logging transaction" });
     }
   });
+  app.post("/api/v1/LogCard", async (req, res) => {
+    // This endpoint to log any entry into the database
+    try {
+      const Internal_authentication_key =
+        req.headers["internal_authentication_key"];
+      const { userid, amount, credit, debit, transaction_id, card_id, Merchantid, currency, description } =
+        req.body;
+      const authentication_key = await client
+        .db("Ledger")
+        .collection("Cards")
+        .findOne({
+          Internal_authentication_key: Internal_authentication_key,
+        });
+      if (!authentication_key) {
+        return res.status(400).send({ message: "Invalid authentication key" });
+      }
+      // Validate user details
+      if (!userid || !amount || !currency || card_id || credit == null || debit == null) {
+        return res.status(400).send({
+          message: "userid, amount, credit, and debit are required",
+        });
+      }
+      if (credit && debit) {
+        return res.status(400).send({
+          message: "credit and debit cannot be true at the same time",
+        });
+      }
+      if (!credit && !debit) {
+        return res.status(400).send({
+          message: "credit and debit cannot be false at the same time",
+        });
+      }
+
+    
+// Card Transaction before going to the ledger
+
+
+const user = await client
+.db("Ledger")
+.collection("Accounts")
+.findOne({ userid: userid });
+if (!user) {
+return res.status(400).send({ message: "Invalid userid" });
+}
+
+if (debit == true) {
+if (user.balance < amount) {
+  return res.status(403).send({ message: "Insufficient funds" });
+}
+}
+if (credit) {
+await client
+  .db("Ledger")
+  .collection("Accounts")
+  .updateOne({ userid: userid }, { $inc: { balance: amount } });
+} else if (debit) {
+await client
+  .db("Ledger")
+  .collection("Accounts")
+  .updateOne({ userid: userid }, { $inc: { balance: -amount } });
+}
+      // Main Ledger Transaction
+      Ledgerid = uuidv4();
+      const LedgerLog = await client
+        .db("Ledger")
+        .collection("Ledger_log")
+        .insertOne({
+          Ledgerid: Ledgerid,
+          userid: userid,
+          amount: amount,
+          credit: credit,
+          debit: debit,
+          currency: currency,
+          description: description,
+          transaction_id: transaction_id,
+          card: card_id || null,
+          action_at: new Date().getTime(),
+        });
+
+
+
+      return res.status(201).send({
+        message: "Transaction logged successfully",
+        Ledgerid: Ledgerid,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: "Error logging transaction" });
+    }
+  });
+
   app.put("/api/v1/AddService", async (req, res) => {
     // This endpoint to log any entry into the database
     try {
