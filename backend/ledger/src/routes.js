@@ -70,7 +70,7 @@ module.exports = function (app, client) {
     try {
       const Internal_authentication_key =
         req.headers["internal_authentication_key"];
-      const { userid, amount, credit, debit, transaction_id, cardUsed } =
+      const { userid, amount, credit, debit, transaction_id, description } =
         req.body;
       const authentication_key = await client
         .db("Ledger")
@@ -133,12 +133,12 @@ module.exports = function (app, client) {
           amount: amount,
           credit: credit,
           debit: debit,
+          description: description,
           transaction_id: transaction_id,
           card: cardUsed || null,
           action_at: new Date().getTime(),
         });
 
-      //Posting Back to The Card Controller
 
       return res.status(201).send({
         message: "Transaction logged successfully",
@@ -150,97 +150,89 @@ module.exports = function (app, client) {
     }
   });
   app.post("/api/v1/LogCard", async (req, res) => {
-    // This endpoint to log any entry into the database
+
+    
+  });
+
+  app.post("/api/v1/Createcard", async (req, res) => {
     try {
       const Internal_authentication_key =
         req.headers["internal_authentication_key"];
-      const { userid, amount, credit, debit, transaction_id, card_id, Merchantid, currency, description } =
-        req.body;
+      const { userid, cardid, rules, Ledgerid} = req.body;
+
+      // Validate user details
+      if (!userid || !cardid || !rules) {
+        return res.status(400).send({
+          message: "userid, cardid and rules are required",
+        });
+      }
+
+      if (typeof rules !== 'object' || rules === null || 
+          !rules.multipleuse || !rules.dailylimit || 
+          (rules.singleuse && (typeof rules.singleuse !== 'object' || rules.singleuse === null || 
+          !rules.singleuse.mid || !rules.singleuse.limit))) {
+        return res.status(400).send({
+          message: "Rules must be an object and must include multipleuse and dailylimit. If singleuse is provided, it must include mid and limit.",
+        });
+      }
+
+      // Default singleuse to false if not provided
+      if (!rules.singleuse) {
+        rules.singleuse = { enabled: false };
+      }
+
       const authentication_key = await client
         .db("Ledger")
-        .collection("Cards")
+        .collection("Authentication_keys")
         .findOne({
           Internal_authentication_key: Internal_authentication_key,
         });
       if (!authentication_key) {
         return res.status(400).send({ message: "Invalid authentication key" });
       }
-      // Validate user details
-      if (!userid || !amount || !currency || card_id || credit == null || debit == null) {
-        return res.status(400).send({
-          message: "userid, amount, credit, and debit are required",
-        });
-      }
-      if (credit && debit) {
-        return res.status(400).send({
-          message: "credit and debit cannot be true at the same time",
-        });
-      }
-      if (!credit && !debit) {
-        return res.status(400).send({
-          message: "credit and debit cannot be false at the same time",
-        });
-      }
 
-    
-// Card Transaction before going to the ledger
-
-
-const user = await client
-.db("Ledger")
-.collection("Accounts")
-.findOne({ userid: userid });
-if (!user) {
-return res.status(400).send({ message: "Invalid userid" });
-}
-
-if (debit == true) {
-if (user.balance < amount) {
-  return res.status(403).send({ message: "Insufficient funds" });
-}
-}
-if (credit) {
-await client
-  .db("Ledger")
-  .collection("Accounts")
-  .updateOne({ userid: userid }, { $inc: { balance: amount } });
-} else if (debit) {
-await client
-  .db("Ledger")
-  .collection("Accounts")
-  .updateOne({ userid: userid }, { $inc: { balance: -amount } });
-}
-      // Main Ledger Transaction
-      Ledgerid = uuidv4();
-      const LedgerLog = await client
+const findledger = await client
         .db("Ledger")
-        .collection("Ledger_log")
+        .collection("Accounts")
+        .findOne({
+          Ledgerid: Ledgerid,
+        });
+      if (!findledger) {
+        return res.status(400).send({ message: "Invalid Ledgerid" });
+      }
+ledgercardid = uuidv4;
+      const user = await client.db("Ledger").collection("Cards").insertOne({
+        cardid: cardid,
+        userid: userid,
+        rules: rules,
+        balance: rules.dailylimit,
+        Ledgerid: Ledgerid,
+        ledgercardid: ledgercardid
+      });
+
+      const authenticationlog = await client
+        .db("Ledger")
+        .collection("Authentication_log")
         .insertOne({
           Ledgerid: Ledgerid,
-          userid: userid,
-          amount: amount,
-          credit: credit,
-          debit: debit,
-          currency: currency,
-          description: description,
-          transaction_id: transaction_id,
-          card: card_id || null,
-          action_at: new Date().getTime(),
+          action: "Create Card",
+          action_by: Internal_authentication_key,
+          action_at: new Date(),
         });
 
-
-
-      return res.status(201).send({
-        message: "Transaction logged successfully",
-        Ledgerid: Ledgerid,
-      });
+      res
+        .status(201)
+        .send({ message: "Card created successfully", Ledgerid: Ledgerid, ledgercardid: ledgercardid });
     } catch (error) {
       console.error(error);
-      res.status(500).send({ message: "Error logging transaction" });
+      res.status(500).send({ message: "Error creating Ledger" });
     }
   });
 
-  app.put("/api/v1/AddService", async (req, res) => {
+
+
+
+  app.post("/api/v1/AddService", async (req, res) => {
     // This endpoint to log any entry into the database
     try {
       const Internal_authentication_key =
